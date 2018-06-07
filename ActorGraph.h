@@ -9,7 +9,8 @@
 
 #ifndef ACTORGRAPH_H
 #define ACTORGRAPH_H
-
+#include "Vertex.h"
+#include "Edge.h"
 #include <iostream>
 
 // Maybe include some data structures here

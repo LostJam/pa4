@@ -20,7 +20,7 @@ all: pathfinder
 
 # include what ever source code *.h files pathfinder relies on (these are merely the ones that were used in the solution)
 
-pathfinder: ActorGraph.o Vertex.o pathfinder.cpp
+pathfinder: ActorGraph.o Vertex.o Edge.o  pathfinder.cpp
 
 
 
@@ -33,6 +33,8 @@ pathfinder: ActorGraph.o Vertex.o pathfinder.cpp
 ActorGraph.o: ActorGraph.h
 
 Vertex.o: Vertex.h
+
+Edge.o: Edge.h
 
 
 clean:

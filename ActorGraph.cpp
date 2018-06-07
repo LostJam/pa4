@@ -14,6 +14,7 @@
 #include <vector>
 #include "ActorGraph.h"
 #include "Vertex.h"
+#include "Edge.h"
 using namespace std;
 
 ActorGraph::ActorGraph(void) {}
@@ -23,7 +24,7 @@ bool ActorGraph::loadFromFile(const char* in_filename, bool use_weighted_edges) 
     ifstream infile(in_filename);
 
     bool have_header = false;
-
+    //first element in the vector so there is something to start with
     string start = "start";
     vector <Vertex*> actorV;  
     Vertex* vertex = new Vertex(start);
@@ -64,47 +65,39 @@ bool ActorGraph::loadFromFile(const char* in_filename, bool use_weighted_edges) 
         string movie_title(record[1]);
         int movie_year = stoi(record[2]);
 
-	//make a vector of unique actor objects and add them all
-
+///make a vector of unique actor objects and add them all///
 		
 	//if actors name not already in the vector, create vertex and add it
-
+	bool isInVec = false;
 	//first time through has start in front
 	for (auto itr = actorV.cbegin(); itr != actorV.end(); ++itr) {
-		cout << "trying to add " << actor_name << endl;
-		//if can't find the name currently trying to add
+		//might be at end in final iteration, which is not dereferencable
+		//if((itr+1) != actorV.end()){
+			//if the name is already in the vector set the bool to false
+			if (((*itr)->get_actor_name()) == (actor_name)){	
+				isInVec	= true;
+				//exit loop
+				break;
+			}
+		//}
+	}
 
-
-		cout << "before hand " << actor_name << endl;
-		string itractor = (*itr)->get_actor_name();
-
-		cout << itractor << " is the current value of iterator"<< endl;
-		if (((*itr)->get_actor_name()) != (actor_name)){	
-			//then add it
-			Vertex* vertex = new Vertex(actor_name);
-			cout << "not " << (*itr)->get_actor_name() << " so adding" << endl;
-			cout << actor_name << endl;
-			actorV.push_back(vertex);
-			//inc iterator?? 
-		}
+	//if the vertex is not already in the vector than we add it to the vecotr
+	if (isInVec == false) {
+				//then add it
+				Vertex* vertex = new Vertex(actor_name);
+				actorV.push_back(vertex);
+				cout << vertex->get_actor_name() << endl;
+				continue;
 	}
 	
-	//checks if actor is the same, if it is, add it to the vector of edges in that node
-	//if not, 
-	// turn each movie into an edge! there will always be at least one shared movie dakara
 
-//	Edge::connectEdges(&vertex, movie_title, movie_year);
-
-	//call function to attach edges and vertex	
-	
-	//print out vector
-	cout << "Contents of the vector:" << endl;
-	    for (auto itr = actorV.cbegin(); itr != actorV.end(); ++itr)
-		cout << (*itr)->get_actor_name() << endl;	
-
-	
-        // we have an actor/movie relationship, now what?
+	//Edge::connectEdges(&vertex, movie_title, movie_year);
+    //endwhile!
     }
+
+    //remove dummy vertex
+    actorV.erase(actorV.begin());
 
     if (!infile.eof()) {
         cerr << "Failed to read " << in_filename << "!\n";
