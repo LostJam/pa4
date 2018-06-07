@@ -38,7 +38,7 @@ class ActorGraph
          */
     bool loadFromFile(const char *in_filename, bool use_weighted_edges);
     void spitActors();
-    void checkIfActorIsUnique();
+    Vertex* checkIfActorIsUnique(std::string actor_name);
 };
 
 #endif // ACTORGRAPH_H

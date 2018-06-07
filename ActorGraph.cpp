@@ -30,7 +30,7 @@ void ActorGraph::spitActors()
         for (Edge *movie : actor->movie_list)
         // for (auto itr = actor->movie_list.begin(); itr != actor->movie_list.end(); itr++)
         {
-            cout << " -> " << movie->get_movie_name() <<  " at: " << movie << endl;
+            cout << " -> " << movie->get_movie_name() << " at: " << movie << endl;
             // cout << " -> " << (*itr)->get_movie_name() <<  " at: " << (*itr) << endl;
             movieCount++;
         }
@@ -99,30 +99,11 @@ bool ActorGraph::loadFromFile(const char *in_filename, bool use_weighted_edges)
         ///make a vector of unique actor objects and add them all///
 
         //if actors name not already in the vector, create vertex and add it
-        bool isInVec = false;
-        //first time through has start in front
-        for (auto itr = unique_actors_list.cbegin(); itr != unique_actors_list.end(); ++itr)
+        Vertex *actor = checkIfActorIsUnique(actor_name);
+
+        if (actor == nullptr)
         {
-            //if the name is already in the vector set the bool to false
-            if (((*itr)->get_actor_name()) == (actor_name))
-            {
-                isInVec = true;
-                //attach edge to previos vertex aka unique actor
-                Edge *edge = new Edge(movie_title, movie_year);
-                vertex->insertEdge(edge);
-                edge->insertActor(vertex);
-
-                // std::cout << "added a new edge: movie -> " << edge->get_movie_name() << endl;
-
-                //exit loop
-                break;
-            }
-        }
-
-        //if the vertex is not already in the vector than we add it to the vecotr
-        if (isInVec == false)
-        {
-
+            //attach edge to previos vertex aka unique actor
             //create an edge with this first actors movie
             Edge *movie = new Edge(movie_title, movie_year);
             //then add it
@@ -131,11 +112,15 @@ bool ActorGraph::loadFromFile(const char *in_filename, bool use_weighted_edges)
             movie->insertActor(actor);
 
             unique_actors_list.push_back(actor);
-
-            // std::cout << "added an actor and an edge: actor -> " << actor->get_actor_name() << endl;
-
-            continue;
         }
+        else
+        {
+            Edge *edge = new Edge(movie_title, movie_year);
+            edge->insertActor(actor);
+            actor->insertEdge(edge);
+        }
+
+        // std::cout << "added an actor and an edge: actor -> " << actor->get_actor_name() << endl;
 
         linesRead++;
         std::cout << "Number of lines read: " << linesRead << endl;
@@ -154,7 +139,16 @@ bool ActorGraph::loadFromFile(const char *in_filename, bool use_weighted_edges)
     return true;
 }
 
-void ActorGraph::checkIfActorIsUnique()
+Vertex *ActorGraph::checkIfActorIsUnique(std::string actor_name)
 {
-    
+    for (auto itr = unique_actors_list.cbegin(); itr != unique_actors_list.end(); ++itr)
+    {
+        //if the name is already in the vector set the bool to false
+        if (((*itr)->get_actor_name()) == (actor_name))
+        {
+            return (*itr);
+        }
+    }
+
+    return nullptr;
 }
