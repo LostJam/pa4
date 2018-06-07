@@ -134,10 +134,7 @@ bool ActorGraph::loadFromFile(const char *in_filename, bool use_weighted_edges)
             actor->insertEdge(movie);
         }
 
-        // std::cout << "added an actor and an edge: actor -> " << actor->get_actor_name() << endl;
-
         linesRead++;
-        std::cout << "Number of lines read: " << linesRead << endl;
     } //endwhile!
 
     //remove dummy vertex
