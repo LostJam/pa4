@@ -23,4 +23,9 @@ void Edge::insertActor(Vertex *actorVertexToAdd)
 	Actors.push_back(actorVertexToAdd);
 }
 
+std::string Edge::nameHash()
+{
+	return movie + std::to_string(year);
+}
+
 Edge::~Edge() {}

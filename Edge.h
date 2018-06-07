@@ -24,7 +24,7 @@ class Edge
                 movie = movie_name;
                 year = movie_year;
         }
-
+        std::string nameHash();
         ~Edge();
 };
 

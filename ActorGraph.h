@@ -11,7 +11,9 @@
 #define ACTORGRAPH_H
 #include "Vertex.h"
 #include "Edge.h"
+#include <map>
 #include <iostream>
+#include <queue>
 
 // Maybe include some data structures here
 
@@ -39,8 +41,13 @@ class ActorGraph
          */
     bool loadFromFile(const char *in_filename, bool use_weighted_edges);
     void spitActors();
+
+    Vertex* getActor(std::string actor_name);
+    std::string pathBetweenActors(std::string actor1, std::string actor2);
     Vertex* checkIfActorIsUnique(std::string actor_name);
     Edge* checkIfMovieIsUnique(std::string movie_title, int movie_year);
+
+    void BFStraverse(Vertex* actor, std::queue<Edge*> q, std::map<std::string, Edge*> visited);
 };
 
 #endif // ACTORGRAPH_H

@@ -28,10 +28,8 @@ void ActorGraph::spitActors()
         cout << actor->get_actor_name() << endl;
 
         for (Edge *movie : actor->movie_list)
-        // for (auto itr = actor->movie_list.begin(); itr != actor->movie_list.end(); itr++)
         {
-            cout << " -> " << movie->get_movie_name() << " at: " << movie << endl;
-            // cout << " -> " << (*itr)->get_movie_name() <<  " at: " << (*itr) << endl;
+            cout << " -> " << movie->get_movie_name() << "(" << movie->get_movie_year() << ") at: " << movie << endl;
             movieCount++;
         }
 
@@ -108,13 +106,12 @@ bool ActorGraph::loadFromFile(const char *in_filename, bool use_weighted_edges)
             //create an edge with this first actors movie
 
             Edge *movie = checkIfMovieIsUnique(movie_title, movie_year);
-            if (movie == nullptr) 
+            if (movie == nullptr)
             {
                 movie = new Edge(movie_title, movie_year);
                 unique_movies_list.push_back(movie);
-
             }
-            
+
             //then add it
             actor = new Vertex(actor_name);
             actor->insertEdge(movie);
@@ -125,7 +122,7 @@ bool ActorGraph::loadFromFile(const char *in_filename, bool use_weighted_edges)
         else
         {
             Edge *movie = checkIfMovieIsUnique(movie_title, movie_year);
-            if (movie == nullptr) 
+            if (movie == nullptr)
             {
                 movie = new Edge(movie_title, movie_year);
                 unique_movies_list.push_back(movie);
@@ -170,12 +167,74 @@ Edge *ActorGraph::checkIfMovieIsUnique(std::string movie_title, int movie_year)
     {
         //if the name is already in the vector set the bool to false
         auto movie = (*itr);
-        if (movie->get_movie_name() == movie_title 
-            && movie->get_movie_year() == movie_year)
+        if (movie->get_movie_name() == movie_title && movie->get_movie_year() == movie_year)
         {
             return (movie);
         }
     }
 
     return nullptr;
+}
+
+Vertex *ActorGraph::getActor(std::string actor_name)
+{
+    for (int i = 0; i < unique_actors_list.size(); i++)
+    {
+        auto actor = unique_actors_list.at(i);
+        if (actor->actor_name == actor_name)
+            return actor;
+    }
+}
+
+void ActorGraph::BFStraverse(Vertex *actor, std::queue<Edge *> q, std::map<std::string, Edge *> visited)
+{
+    // TODO: figure out when to compare one actor to the other
+    
+    for (int i = 0; i < actor->movie_list.size(); i++)
+    {
+        Edge *movie = actor->movie_list.at(i);
+        
+        // TODO: Make sure this check is valid
+        if (visited.at(movie->nameHash()) == nullptr)
+        {
+            visited[movie->nameHash()] = movie;
+            q.push(movie);
+        }
+    }
+
+    if (q.empty())
+    {
+        return;
+    }
+    else
+    {
+        Edge *tempMovie = q.front();
+
+        if (tempMovie != nullptr)
+        {
+            q.pop();
+
+            for (int y = 0; y < tempMovie->Actors.size(); y++)
+            {
+                Vertex *tempActor = tempMovie->Actors.at(y);
+                ActorGraph::BFStraverse(tempActor, q, visited);
+            }
+        }
+    }
+}
+
+// Should look like
+// (<actorname>)--[movietitle#@movieyear]-->(actorname)--.....
+std::string ActorGraph::pathBetweenActors(std::string name1, std::string name2)
+{
+    // traverse until we find the next boob
+    Vertex *actor1 = getActor(name1);
+
+    std::queue<Edge *> q;
+    std::map<std::string, Edge *> map;
+
+    // TODO: Finish this proper
+    // BFStraverse(actor1, q, map);
+
+    return "";
 }
