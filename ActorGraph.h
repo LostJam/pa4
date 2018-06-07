@@ -17,17 +17,17 @@
 
 using namespace std;
 
-class ActorGraph {
-    protected:
+class ActorGraph
+{
+  private:
+    vector<Vertex *> unique_actors_list;
 
-        // Maybe add class data structure(s) here
+  public:
+    ActorGraph(void);
 
-    public:
-        ActorGraph(void);
+    // Maybe add some more methods here
 
-        // Maybe add some more methods here
-
-        /** You can modify this method definition as you wish
+    /** You can modify this method definition as you wish
          *
          * Load the graph from a tab-delimited file of actor->movie relationships.
          *
@@ -36,9 +36,9 @@ class ActorGraph {
          *
          * return true if file was loaded sucessfully, false otherwise
          */
-        bool loadFromFile(const char* in_filename, bool use_weighted_edges);
-
+    bool loadFromFile(const char *in_filename, bool use_weighted_edges);
+    void spitActors();
+    void checkIfActorIsUnique();
 };
-
 
 #endif // ACTORGRAPH_H

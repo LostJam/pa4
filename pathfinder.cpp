@@ -13,5 +13,7 @@ int main(int argc, char* argv[]) {
 //load the unweighted graph
     graph.loadFromFile(infile, false);  
 
+    graph.spitActors();
+
     return 0;
 }
