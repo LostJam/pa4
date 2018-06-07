@@ -12,4 +12,10 @@ std::string Vertex::get_actor_name() const
   return actor_name;
 }
 
+void Vertex::insertEdge(Edge* edge)
+{
+  movie_list.push_back(edge);
+}
+
+
 Vertex::~Vertex(){};

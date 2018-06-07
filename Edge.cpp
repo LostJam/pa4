@@ -18,4 +18,9 @@ std::vector<Vertex *> Edge::get_Actors()
 	return Actors;
 }
 
+void Edge::insertActor(Vertex *actorVertexToAdd)
+{
+	Actors.push_back(actorVertexToAdd);
+}
+
 Edge::~Edge() {}

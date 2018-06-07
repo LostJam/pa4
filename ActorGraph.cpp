@@ -19,87 +19,104 @@ using namespace std;
 
 ActorGraph::ActorGraph(void) {}
 
-bool ActorGraph::loadFromFile(const char* in_filename, bool use_weighted_edges) {
+bool ActorGraph::loadFromFile(const char *in_filename, bool use_weighted_edges)
+{
     // Initialize the file stream
     ifstream infile(in_filename);
 
     bool have_header = false;
     //first element in the vector so there is something to start with
     string start = "start";
-    vector <Vertex*> actorV;  
-    Vertex* vertex = new Vertex(start);
-    actorV.push_back(vertex);
- 
+    vector<Vertex *> unique_actors_list;
+    Vertex *vertex = new Vertex(start);
+    unique_actors_list.push_back(vertex);
+
     // keep reading lines until the end of file is reached
-    while (infile) {
+    while (infile)
+    {
         string s;
 
         // get the next line
-        if (!getline( infile, s )) break;
+        if (!getline(infile, s))
+            break;
 
-        if (!have_header) {
+        if (!have_header)
+        {
             // skip the header
             have_header = true;
             continue;
         }
 
-        istringstream ss( s );
-        vector <string> record;
+        istringstream ss(s);
+        vector<string> record;
 
-        while (ss) {
+        while (ss)
+        {
             string next;
 
             // get the next string before hitting a tab character and put it in 'next'
-            if (!getline( ss, next, '\t' )) break;
+            if (!getline(ss, next, '\t'))
+                break;
 
-            record.push_back( next );
+            record.push_back(next);
         }
 
-        if (record.size() != 3) {
+        if (record.size() != 3)
+        {
             // we should have exactly 3 columns
             continue;
         }
-
 
         string actor_name(record[0]);
         string movie_title(record[1]);
         int movie_year = stoi(record[2]);
 
-///make a vector of unique actor objects and add them all///
-		
-	//if actors name not already in the vector, create vertex and add it
-	bool isInVec = false;
-	//first time through has start in front
-	for (auto itr = actorV.cbegin(); itr != actorV.end(); ++itr) {
-		//might be at end in final iteration, which is not dereferencable
-		//if((itr+1) != actorV.end()){
-			//if the name is already in the vector set the bool to false
-			if (((*itr)->get_actor_name()) == (actor_name)){	
-				isInVec	= true;
-				//exit loop
-				break;
-			}
-		//}
-	}
+        ///make a vector of unique actor objects and add them all///
 
-	//if the vertex is not already in the vector than we add it to the vecotr
-	if (isInVec == false) {
-				//then add it
-				Vertex* vertex = new Vertex(actor_name);
-				actorV.push_back(vertex);
-				cout << vertex->get_actor_name() << endl;
-				continue;
-	}
-	
+        //if actors name not already in the vector, create vertex and add it
+        bool isInVec = false;
+        //first time through has start in front
+        for (auto itr = unique_actors_list.cbegin(); itr != unique_actors_list.end(); ++itr)
+        {
+            //if the name is already in the vector set the bool to false
+            if (((*itr)->get_actor_name()) == (actor_name))
+            {
+                isInVec = true;
+                //attach edge to previos vertex aka unique actor
+                Edge *edge = new Edge(movie_title, movie_year);
+                vertex->insertEdge(edge);
+                
 
-	//Edge::connectEdges(&vertex, movie_title, movie_year);
-    //endwhile!
+                //exit loop
+                break;
+            }
+        }
+
+        //if the vertex is not already in the vector than we add it to the vecotr
+        if (isInVec == false)
+        {
+            
+            //create an edge with this first actors movie
+            Edge *movie = new Edge(movie_title, movie_year);
+            //then add it
+            Vertex *actor = new Vertex(actor_name);
+            actor->insertEdge(movie);
+            movie->insertActor(actor);
+            
+            unique_actors_list.push_back(actor);
+        
+            cout << vertex->get_actor_name() << endl;
+            continue;
+        }
+
+        //endwhile!
     }
 
     //remove dummy vertex
-    actorV.erase(actorV.begin());
+    unique_actors_list.erase(unique_actors_list.begin());
 
-    if (!infile.eof()) {
+    if (!infile.eof())
+    {
         cerr << "Failed to read " << in_filename << "!\n";
         return false;
     }
