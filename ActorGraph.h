@@ -21,6 +21,7 @@ class ActorGraph
 {
   private:
     vector<Vertex *> unique_actors_list;
+    vector<Edge *> unique_movies_list;
 
   public:
     ActorGraph(void);
@@ -39,6 +40,7 @@ class ActorGraph
     bool loadFromFile(const char *in_filename, bool use_weighted_edges);
     void spitActors();
     Vertex* checkIfActorIsUnique(std::string actor_name);
+    Edge* checkIfMovieIsUnique(std::string movie_title, int movie_year);
 };
 
 #endif // ACTORGRAPH_H

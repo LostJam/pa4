@@ -101,13 +101,22 @@ bool ActorGraph::loadFromFile(const char *in_filename, bool use_weighted_edges)
         //if actors name not already in the vector, create vertex and add it
         Vertex *actor = checkIfActorIsUnique(actor_name);
 
+        //is unique
         if (actor == nullptr)
         {
             //attach edge to previos vertex aka unique actor
             //create an edge with this first actors movie
-            Edge *movie = new Edge(movie_title, movie_year);
+
+            Edge *movie = checkIfMovieIsUnique(movie_title, movie_year);
+            if (movie == nullptr) 
+            {
+                movie = new Edge(movie_title, movie_year);
+                unique_movies_list.push_back(movie);
+
+            }
+            
             //then add it
-            Vertex *actor = new Vertex(actor_name);
+            actor = new Vertex(actor_name);
             actor->insertEdge(movie);
             movie->insertActor(actor);
 
@@ -115,9 +124,14 @@ bool ActorGraph::loadFromFile(const char *in_filename, bool use_weighted_edges)
         }
         else
         {
-            Edge *edge = new Edge(movie_title, movie_year);
-            edge->insertActor(actor);
-            actor->insertEdge(edge);
+            Edge *movie = checkIfMovieIsUnique(movie_title, movie_year);
+            if (movie == nullptr) 
+            {
+                movie = new Edge(movie_title, movie_year);
+                unique_movies_list.push_back(movie);
+            }
+            movie->insertActor(actor);
+            actor->insertEdge(movie);
         }
 
         // std::cout << "added an actor and an edge: actor -> " << actor->get_actor_name() << endl;
@@ -147,6 +161,22 @@ Vertex *ActorGraph::checkIfActorIsUnique(std::string actor_name)
         if (((*itr)->get_actor_name()) == (actor_name))
         {
             return (*itr);
+        }
+    }
+
+    return nullptr;
+}
+
+Edge *ActorGraph::checkIfMovieIsUnique(std::string movie_title, int movie_year)
+{
+    for (auto itr = unique_movies_list.cbegin(); itr != unique_movies_list.end(); ++itr)
+    {
+        //if the name is already in the vector set the bool to false
+        auto movie = (*itr);
+        if (movie->get_movie_name() == movie_title 
+            && movie->get_movie_year() == movie_year)
+        {
+            return (movie);
         }
     }
 
