@@ -25,7 +25,7 @@ void ActorGraph::spitActors()
     for (int i = 0; i < unique_actors_list.size(); i++)
     {
         auto actor = unique_actors_list.at(i);
-        cout << actor->get_actor_name() << endl;
+        cout << actor->get_actor_name() << " distance: " << actor->dist << endl;
 
         for (Edge *movie : actor->movie_list)
         {
@@ -186,82 +186,65 @@ Vertex *ActorGraph::getActor(std::string actor_name)
     }
 }
 
-bool ActorGraph::BFStraverse(Vertex *currentActor, Vertex *endActor, std::queue<Edge *> q, std::map<std::string, Vertex *> visited)
+void ActorGraph::shortestPath(std::string actorName, std::string actorName2)
 {
-    // Check if we found THE END!
-    if (currentActor == endActor)
+    std::queue<Vertex *> q;
+    Vertex *currentActorNode;
+
+    Vertex *actor1 = getActor(actorName);
+    Vertex *actor2 = getActor(actorName2);
+
+    q.push(actor1);
+    actor1->dist = 0;
+
+    while (q.empty() != true)
     {
-        std::cout << " - - - - - WE FOUND " << endActor->actor_name << endl;
-        return true;
-    }
-
-    for (int i = 0; i < currentActor->movie_list.size(); i++)
-    {
-        Edge *movie = currentActor->movie_list.at(i);
-
-        std::cout << "Adding " << movie->movie << " To our queue" << endl;
-        q.push(movie);
-    }
-
-    Edge *tempMovie = q.front();
-
-    if (tempMovie != nullptr)
-    {
-        std::cout << "Popping " << tempMovie->movie << " off the queue" << endl;
-        q.pop();
-
-        for (int y = 0; y < tempMovie->Actors.size(); y++)
+        currentActorNode = q.front();
+        if (currentActorNode != nullptr)
         {
-            Vertex *tempActor = tempMovie->Actors.at(y);
-            std::cout << "Visiting actor " << tempActor->actor_name << endl;
+            q.pop();
+            currentActorNode->visited = true;
 
-            // Check if the map of visited vertexes already has this
-            // actor we are looking at. If it does not contain it, we
-            // will get an iterator pointing to the end of the map
-            auto hasValue = visited.find(tempActor->actor_name);
+            std::cout << "Looking at Node: " << currentActorNode->actor_name << endl;
 
-            if (hasValue == visited.end()) // <-- hasValue == visited.end() MEANS unvisited
+            // build a list of all actors in all movies this actor is listed in
+            vector<Vertex *> neighbors;
+            for(Edge * currentMovie : currentActorNode->movie_list)
             {
-                std::pair<std::string, Vertex *> value(tempActor->actor_name, tempActor);
-                visited.insert(value);
+                std::cout << "Actor " << currentActorNode->actor_name << "Has been in " << currentMovie->movie << endl;
 
-                if (tempActor != currentActor)
+                for (Vertex * neighbor : currentMovie->Actors)
                 {
-                    std::cout << "Beginning traversal at " << tempActor->actor_name << endl;
-                    bool foundEnd = ActorGraph::BFStraverse(tempActor, endActor, q, visited);
+                    std::cout << "Adding neighbor " << neighbor->actor_name << " to " << currentActorNode->actor_name << endl;
 
-                    if (foundEnd == true)
-                        return true;
-                }
-                else
-                {
-                    std::cout << "Decided not to recurse on " << tempActor->actor_name << endl;
+                    neighbors.push_back(neighbor);
                 }
             }
-            else
+
+            // Iterate through all neighbors and modify their distances
+            for (Vertex *n : neighbors)
             {
-                std::cout << "Decided not to recurse on " << tempActor->actor_name << endl;
+                if (n != currentActorNode && n->visited != true)
+                {
+                    if (n->dist > currentActorNode->dist + 1)
+                    {
+                        n->dist = currentActorNode->dist + 1;
+                        n->prev = currentActorNode;
+
+                        std::cout << "Found unvisited node " << n->actor_name << ": adding to queue" << endl;
+
+                        q.push(n);
+                    }
+                }
             }
+
         }
-
-        return false;
     }
-
-    std::cout << "Finished traversing" << endl;
 }
 
 // Should look like
 // (<actorname>)--[movietitle#@movieyear]-->(actorname)--.....
 std::string ActorGraph::pathBetweenActors(std::string name1, std::string name2)
 {
-    // traverse until we find the next boob
-    Vertex *actor1 = getActor(name1);
-    Vertex *actor2 = getActor(name2);
-
-    std::queue<Edge *> q;
-    std::map<std::string, Vertex *> map;
-
-    BFStraverse(actor1, actor2, q, map);
-
     return "";
 }
