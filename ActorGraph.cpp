@@ -231,6 +231,11 @@ void ActorGraph::shortestPath(std::string actorName, std::string actorName2)
                         n->dist = currentActorNode->dist + 1;
                         n->prev = currentActorNode;
 
+                        // Check if we found the endpoint. 
+                        // If we did, there is no need to add any more nodes in this path
+                        if (n == actor2)
+                            break;
+
                         std::cout << "Found unvisited node " << n->actor_name << ": adding to queue" << endl;
 
                         q.push(n);
