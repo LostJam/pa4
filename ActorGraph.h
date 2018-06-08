@@ -46,8 +46,10 @@ class ActorGraph
     std::string pathBetweenActors(std::string actor1, std::string actor2);
     Vertex* checkIfActorIsUnique(std::string actor_name);
     Edge* checkIfMovieIsUnique(std::string movie_title, int movie_year);
-
-    void shortestPath(std::string actorName, std::string actorName2);
+  
+  private:
+    void shortestPathSetup(std::string actorName, std::string actorName2);
+    std::string getPathFromEnd(std::string endName);
 };
 
 #endif // ACTORGRAPH_H

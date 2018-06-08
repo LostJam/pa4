@@ -17,8 +17,8 @@ int main(int argc, char* argv[]) {
     graph.loadFromFile("databases/movie_casts.short.tsv", false);  
 
     // TODO: don't hardcode this
-    graph.shortestPath("actor1", "actor15");
-    graph.spitActors();
+    graph.pathBetweenActors("actor1", "actor15");
+    // graph.spitActors();   
 
     return 0;
 }

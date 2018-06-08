@@ -186,7 +186,7 @@ Vertex *ActorGraph::getActor(std::string actor_name)
     }
 }
 
-void ActorGraph::shortestPath(std::string actorName, std::string actorName2)
+void ActorGraph::shortestPathSetup(std::string actorName, std::string actorName2)
 {
     std::queue<Vertex *> q;
     Vertex *currentActorNode;
@@ -242,14 +242,57 @@ void ActorGraph::shortestPath(std::string actorName, std::string actorName2)
                     }
                 }
             }
-
         }
     }
 }
 
-// Should look like
-// (<actorname>)--[movietitle#@movieyear]-->(actorname)--.....
+std::string ActorGraph::getPathFromEnd(std::string endName)
+{
+    std::cout << "Printing final path..." << endl;
+
+    // To get the shortest path, we just need to find our end node
+    // and move backwards toward the beginning
+    Vertex *endActor = getActor(endName);
+    Vertex *currentNode = endActor;
+
+    // This vector is going to keep track of all nodes in the path
+    // so we can iterate through it when printing
+    vector<Vertex *> pathNodes;
+
+    while (currentNode != nullptr)
+    {
+        // Adding to front of vector to reverse the order
+        pathNodes.insert(pathNodes.begin(), currentNode);
+        currentNode = currentNode->prev;
+    }
+
+    std::string path = "";
+    int numberOfNodes = pathNodes.size();
+    for (int i = 0; i < numberOfNodes; i++)
+    {
+        Vertex *node = pathNodes[i];
+
+        path += node->actor_name;
+
+        if (i < numberOfNodes - 1)
+            path += " --> ";
+        else
+            path += "\n";
+    }
+
+    return path;
+}
+
 std::string ActorGraph::pathBetweenActors(std::string name1, std::string name2)
 {
-    return "";
+    // Set up our graph by changing all the distances in the nodes
+    shortestPathSetup(name1, name2);
+
+    // Print out the path to our endpoint. Should be formatted as:
+    // (<actorname>)--[movietitle#@movieyear]-->(actorname)--.....
+    std::string finalPath = getPathFromEnd(name2);
+
+    std::cout << finalPath << endl;
+
+    return finalPath;
 }
