@@ -11,9 +11,11 @@ int main(int argc, char* argv[]) {
 //make the graph and read the arg file
     ActorGraph graph;
 //load the unweighted graph
-    graph.loadFromFile(infile, false);  
+    // graph.loadFromFile(infile, false);  
+    graph.loadFromFile("databases/movie_casts.short.tsv", false);  
 
     graph.spitActors();
+    graph.pathBetweenActors("actor1", "actor15");
 
     return 0;
 }

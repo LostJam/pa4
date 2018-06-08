@@ -47,7 +47,7 @@ class ActorGraph
     Vertex* checkIfActorIsUnique(std::string actor_name);
     Edge* checkIfMovieIsUnique(std::string movie_title, int movie_year);
 
-    void BFStraverse(Vertex* actor, std::queue<Edge*> q, std::map<std::string, Edge*> visited);
+    bool BFStraverse(Vertex* currentActor, Vertex* endActor, std::queue<Edge*> q, std::map<std::string, Vertex*> visited);
 };
 
 #endif // ACTORGRAPH_H

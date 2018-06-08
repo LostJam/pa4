@@ -186,41 +186,68 @@ Vertex *ActorGraph::getActor(std::string actor_name)
     }
 }
 
-void ActorGraph::BFStraverse(Vertex *actor, std::queue<Edge *> q, std::map<std::string, Edge *> visited)
+bool ActorGraph::BFStraverse(Vertex *currentActor, Vertex *endActor, std::queue<Edge *> q, std::map<std::string, Vertex *> visited)
 {
-    // TODO: figure out when to compare one actor to the other
-    
-    for (int i = 0; i < actor->movie_list.size(); i++)
+    // Check if we found THE END!
+    if (currentActor == endActor)
     {
-        Edge *movie = actor->movie_list.at(i);
-        
-        // TODO: Make sure this check is valid
-        if (visited.at(movie->nameHash()) == nullptr)
-        {
-            visited[movie->nameHash()] = movie;
-            q.push(movie);
-        }
+        std::cout << " - - - - - WE FOUND " << endActor->actor_name << endl;
+        return true;
     }
 
-    if (q.empty())
+    for (int i = 0; i < currentActor->movie_list.size(); i++)
     {
-        return;
+        Edge *movie = currentActor->movie_list.at(i);
+
+        std::cout << "Adding " << movie->movie << " To our queue" << endl;
+        q.push(movie);
     }
-    else
+
+    Edge *tempMovie = q.front();
+
+    if (tempMovie != nullptr)
     {
-        Edge *tempMovie = q.front();
+        std::cout << "Popping " << tempMovie->movie << " off the queue" << endl;
+        q.pop();
 
-        if (tempMovie != nullptr)
+        for (int y = 0; y < tempMovie->Actors.size(); y++)
         {
-            q.pop();
+            Vertex *tempActor = tempMovie->Actors.at(y);
+            std::cout << "Visiting actor " << tempActor->actor_name << endl;
 
-            for (int y = 0; y < tempMovie->Actors.size(); y++)
+            // Check if the map of visited vertexes already has this
+            // actor we are looking at. If it does not contain it, we
+            // will get an iterator pointing to the end of the map
+            auto hasValue = visited.find(tempActor->actor_name);
+
+            if (hasValue == visited.end()) // <-- hasValue == visited.end() MEANS unvisited
             {
-                Vertex *tempActor = tempMovie->Actors.at(y);
-                ActorGraph::BFStraverse(tempActor, q, visited);
+                std::pair<std::string, Vertex *> value(tempActor->actor_name, tempActor);
+                visited.insert(value);
+
+                if (tempActor != currentActor)
+                {
+                    std::cout << "Beginning traversal at " << tempActor->actor_name << endl;
+                    bool foundEnd = ActorGraph::BFStraverse(tempActor, endActor, q, visited);
+
+                    if (foundEnd == true)
+                        return true;
+                }
+                else
+                {
+                    std::cout << "Decided not to recurse on " << tempActor->actor_name << endl;
+                }
+            }
+            else
+            {
+                std::cout << "Decided not to recurse on " << tempActor->actor_name << endl;
             }
         }
+
+        return false;
     }
+
+    std::cout << "Finished traversing" << endl;
 }
 
 // Should look like
@@ -229,12 +256,12 @@ std::string ActorGraph::pathBetweenActors(std::string name1, std::string name2)
 {
     // traverse until we find the next boob
     Vertex *actor1 = getActor(name1);
+    Vertex *actor2 = getActor(name2);
 
     std::queue<Edge *> q;
-    std::map<std::string, Edge *> map;
+    std::map<std::string, Vertex *> map;
 
-    // TODO: Finish this proper
-    // BFStraverse(actor1, q, map);
+    BFStraverse(actor1, actor2, q, map);
 
     return "";
 }
