@@ -15,6 +15,7 @@ class Vertex
 	int dist;
 	bool visited;
 	Vertex* prev;
+	Edge* movieLink;
 	std::vector<Edge *> movie_list;
 	std::string get_actor_name() const;
 
@@ -22,6 +23,7 @@ class Vertex
 	{
 		//set dist to almsot infinity
 		prev = nullptr;
+		movieLink = nullptr;
 		visited = false;
 		dist = INT_MAX;
 		actor_name = name;

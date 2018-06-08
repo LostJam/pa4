@@ -217,6 +217,7 @@ void ActorGraph::shortestPathSetup(std::string actorName, std::string actorName2
                 {
                     std::cout << "Adding neighbor " << neighbor->actor_name << " to " << currentActorNode->actor_name << endl;
 
+                    neighbor->movieLink = currentMovie;
                     neighbors.push_back(neighbor);
                 }
             }
@@ -272,10 +273,13 @@ std::string ActorGraph::getPathFromEnd(std::string endName)
     {
         Vertex *node = pathNodes[i];
 
-        path += node->actor_name;
+        path += "(" + node->actor_name + ")";
 
         if (i < numberOfNodes - 1)
-            path += " --> ";
+        {
+            path += "--[" + node->movieLink->movie + "#@" + std::to_string(node->movieLink->year) + "]";
+            path += "-->";
+        }
         else
             path += "\n";
     }
