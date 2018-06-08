@@ -13,6 +13,11 @@ int Edge::get_movie_year() const
 	return year;
 }
 
+int Edge::getWeight() const
+{
+	return 1 + (2015 - year);
+}
+
 std::vector<Vertex *> Edge::get_Actors()
 {
 	return Actors;

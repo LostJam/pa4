@@ -50,6 +50,8 @@ class ActorGraph
   private:
     void shortestPathSetup(std::string actorName, std::string actorName2);
     std::string getPathFromEnd(std::string endName);
+    int getSmallestWeight(Vertex *n, Vertex *currentActorNode);
+           
 };
 
 #endif // ACTORGRAPH_H

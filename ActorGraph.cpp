@@ -186,6 +186,29 @@ Vertex *ActorGraph::getActor(std::string actor_name)
     }
 }
 
+int ActorGraph::getSmallestWeight(Vertex *n, Vertex *currentActorNode)
+{
+    //loop through all the movies of one
+    //then all the movies of the other
+    int minWeight = INT_MAX;
+    for (Edge *m1 : n->movie_list)
+    {
+        for (Edge *m2 : currentActorNode->movie_list)
+        {
+            //then check if theyre equal and get their weight
+            if (m1 == m2)
+            {
+                // if the next one is smaller then update min weight
+                if (m1->getWeight() < minWeight)
+                {
+                    minWeight = m1->getWeight();
+                }
+            }
+        }
+    }
+    return minWeight;
+}
+
 void ActorGraph::shortestPathSetup(std::string actorName, std::string actorName2)
 {
     std::queue<Vertex *> q;
@@ -209,11 +232,11 @@ void ActorGraph::shortestPathSetup(std::string actorName, std::string actorName2
 
             // build a list of all actors in all movies this actor is listed in
             vector<Vertex *> neighbors;
-            for(Edge * currentMovie : currentActorNode->movie_list)
+            for (Edge *currentMovie : currentActorNode->movie_list)
             {
                 std::cout << "Actor " << currentActorNode->actor_name << "Has been in " << currentMovie->movie << endl;
 
-                for (Vertex * neighbor : currentMovie->Actors)
+                for (Vertex *neighbor : currentMovie->Actors)
                 {
                     std::cout << "Adding neighbor " << neighbor->actor_name << " to " << currentActorNode->actor_name << endl;
 
@@ -227,12 +250,15 @@ void ActorGraph::shortestPathSetup(std::string actorName, std::string actorName2
             {
                 if (n != currentActorNode && n->visited != true)
                 {
-                    if (n->dist > currentActorNode->dist + 1)
+                    int weight = getSmallestWeight(n, currentActorNode);
+
+                    if (n->dist > currentActorNode->dist + weight)
                     {
-                        n->dist = currentActorNode->dist + 1;
+                        //add
+                        n->dist = currentActorNode->dist + weight;
                         n->prev = currentActorNode;
 
-                        // Check if we found the endpoint. 
+                        // Check if we found the endpoint.
                         // If we did, there is no need to add any more nodes in this path
                         if (n == actor2)
                             break;

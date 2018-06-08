@@ -18,6 +18,9 @@ class Edge
         std::string get_movie_name() const;
         std::vector<Vertex *> get_Actors();
         void insertActor(Vertex* actorVertexToAdd);
+
+        
+        int getWeight() const;
         //constructor with a movie object and a vertex to pass into its vector of actors
         Edge(std::string movie_name, int movie_year)
         {
