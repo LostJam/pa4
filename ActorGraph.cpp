@@ -186,15 +186,19 @@ Vertex *ActorGraph::getActor(std::string actor_name)
     }
 }
 
-int ActorGraph::getSmallestWeight(Vertex *n, Vertex *currentActorNode)
+Edge *ActorGraph::getSmallestWeight(Vertex *n, Vertex *currentActorNode)
 {
     //loop through all the movies of one
     //then all the movies of the other
     int minWeight = INT_MAX;
-    for (Edge *m1 : n->movie_list)
+    Edge *chosenMovie;
+
+    for (Edge *m2 : currentActorNode->movie_list)
     {
-        for (Edge *m2 : currentActorNode->movie_list)
+        for (Edge *m1 : n->movie_list)
         {
+            std::string movies = currentActorNode->printMovies();
+
             //then check if theyre equal and get their weight
             if (m1 == m2)
             {
@@ -202,11 +206,21 @@ int ActorGraph::getSmallestWeight(Vertex *n, Vertex *currentActorNode)
                 if (m1->getWeight() < minWeight)
                 {
                     minWeight = m1->getWeight();
+                    chosenMovie = m1;
                 }
             }
         }
     }
-    return minWeight;
+
+    return chosenMovie;
+}
+
+void setActorLinks(Vertex *actor1, Vertex *actor2, Edge *closestMovie)
+{
+    std::string actorsKey = actor1->actor_name + actor2->actor_name;
+    std::pair<std::string, Edge *> mapValue(actorsKey, closestMovie);
+    actor1->movieLinks.insert(mapValue);
+    actor2->movieLinks.insert(mapValue);
 }
 
 void ActorGraph::shortestPathSetup(std::string actorName, std::string actorName2)
@@ -228,19 +242,12 @@ void ActorGraph::shortestPathSetup(std::string actorName, std::string actorName2
             q.pop();
             currentActorNode->visited = true;
 
-            std::cout << "Looking at Node: " << currentActorNode->actor_name << endl;
-
             // build a list of all actors in all movies this actor is listed in
             vector<Vertex *> neighbors;
             for (Edge *currentMovie : currentActorNode->movie_list)
             {
-                std::cout << "Actor " << currentActorNode->actor_name << "Has been in " << currentMovie->movie << endl;
-
                 for (Vertex *neighbor : currentMovie->Actors)
                 {
-                    std::cout << "Adding neighbor " << neighbor->actor_name << " to " << currentActorNode->actor_name << endl;
-
-                    neighbor->movieLink = currentMovie;
                     neighbors.push_back(neighbor);
                 }
             }
@@ -250,11 +257,14 @@ void ActorGraph::shortestPathSetup(std::string actorName, std::string actorName2
             {
                 if (n != currentActorNode && n->visited != true)
                 {
-                    int weight = getSmallestWeight(n, currentActorNode);
+                    Edge *closestMovie = getSmallestWeight(n, currentActorNode);
+                    int weight = closestMovie->getWeight();
 
                     if (n->dist > currentActorNode->dist + weight)
                     {
-                        //add
+                        // set the links
+                        setActorLinks(n, currentActorNode, closestMovie);
+
                         n->dist = currentActorNode->dist + weight;
                         n->prev = currentActorNode;
 
@@ -262,8 +272,6 @@ void ActorGraph::shortestPathSetup(std::string actorName, std::string actorName2
                         // If we did, there is no need to add any more nodes in this path
                         if (n == actor2)
                             break;
-
-                        std::cout << "Found unvisited node " << n->actor_name << ": adding to queue" << endl;
 
                         q.push(n);
                     }
@@ -290,6 +298,7 @@ std::string ActorGraph::getPathFromEnd(std::string endName)
     {
         // Adding to front of vector to reverse the order
         pathNodes.insert(pathNodes.begin(), currentNode);
+
         currentNode = currentNode->prev;
     }
 
@@ -298,12 +307,30 @@ std::string ActorGraph::getPathFromEnd(std::string endName)
     for (int i = 0; i < numberOfNodes; i++)
     {
         Vertex *node = pathNodes[i];
+        Vertex *otherNode;
+
+        if (i < numberOfNodes - 1)
+            otherNode = pathNodes[i + 1];
+        else
+            otherNode = pathNodes[i - 1];
 
         path += "(" + node->actor_name + ")";
 
+        Edge *movieLink;
+        try
+        {
+            std::string mapKey = otherNode->actor_name + node->actor_name;
+            movieLink = node->movieLinks.at(mapKey);
+        }
+        catch(const std::exception& e)
+        {
+            std::string mapKey = node->actor_name + otherNode->actor_name;
+            movieLink = node->movieLinks.at(mapKey);
+        }
+        
         if (i < numberOfNodes - 1)
         {
-            path += "--[" + node->movieLink->movie + "#@" + std::to_string(node->movieLink->year) + "]";
+            path += "--[" + movieLink->movie + "#@" + std::to_string(movieLink->year) + "]";
             path += "-->";
         }
         else
