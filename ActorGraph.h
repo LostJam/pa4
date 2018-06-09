@@ -39,7 +39,7 @@ class ActorGraph
          *
          * return true if file was loaded sucessfully, false otherwise
          */
-    bool loadFromFile(const char *in_filename, bool use_weighted_edges);
+    bool loadFromFile(const char *in_filename, bool use_weighted_edges, const char *pairsName, const char *outfileName);
     void spitActors();
 
     Vertex* getActor(std::string actor_name);

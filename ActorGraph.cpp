@@ -17,6 +17,15 @@
 #include "Edge.h"
 using namespace std;
 
+class EdgeCompare
+{
+public:
+    bool operator() (Vertex* e1, Vertex* e2)
+    {
+        return e1->dist < e2->dist;
+    }
+};
+
 void ActorGraph::spitActors()
 {
     int actorCount = 0;
@@ -42,7 +51,7 @@ void ActorGraph::spitActors()
 
 ActorGraph::ActorGraph(void) {}
 
-bool ActorGraph::loadFromFile(const char *in_filename, bool use_weighted_edges)
+bool ActorGraph::loadFromFile(const char *in_filename, bool use_weighted_edges, const char *pairsName, const char *outfileName)
 {
     // Initialize the file stream
     ifstream infile(in_filename);
@@ -144,6 +153,8 @@ bool ActorGraph::loadFromFile(const char *in_filename, bool use_weighted_edges)
     }
     infile.close();
 
+    std::cout << "finished reading file" << endl;
+
     return true;
 }
 
@@ -225,21 +236,22 @@ void setActorLinks(Vertex *actor1, Vertex *actor2, Edge *closestMovie)
 
 void ActorGraph::shortestPathSetup(std::string actorName, std::string actorName2)
 {
-    std::queue<Vertex *> q;
+    std::cout << "attempting to set up graph" << endl;
+    std::priority_queue<Vertex *, vector<Vertex*>, EdgeCompare> queue;
     Vertex *currentActorNode;
 
     Vertex *actor1 = getActor(actorName);
     Vertex *actor2 = getActor(actorName2);
 
-    q.push(actor1);
+    queue.push(actor1);
     actor1->dist = 0;
 
-    while (q.empty() != true)
+    while (queue.empty() != true)
     {
-        currentActorNode = q.front();
+        currentActorNode = queue.top();
         if (currentActorNode != nullptr)
         {
-            q.pop();
+            queue.pop();
             currentActorNode->visited = true;
 
             // build a list of all actors in all movies this actor is listed in
@@ -273,12 +285,16 @@ void ActorGraph::shortestPathSetup(std::string actorName, std::string actorName2
                         if (n == actor2)
                             break;
 
-                        q.push(n);
+                        queue.push(n);
                     }
                 }
             }
         }
+
+        std::cout << "Queue has " << queue.size() << " items remaining" << endl;
     }
+
+    std::cout << "done wit setup" << endl;
 }
 
 std::string ActorGraph::getPathFromEnd(std::string endName)
