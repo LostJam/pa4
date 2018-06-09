@@ -4,6 +4,7 @@
 #include <vector>
 #include <iostream>
 #include <map>
+#include <cstdint>
 #include "Edge.h"
 
 class Edge;

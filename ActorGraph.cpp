@@ -12,6 +12,8 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <set>
+#include <cstdint>
 #include "ActorGraph.h"
 #include "Vertex.h"
 #include "Edge.h"
@@ -19,8 +21,8 @@ using namespace std;
 
 class EdgeCompare
 {
-public:
-    bool operator() (Vertex* e1, Vertex* e2)
+  public:
+    bool operator()(Vertex *e1, Vertex *e2)
     {
         return e1->dist < e2->dist;
     }
@@ -31,7 +33,7 @@ void ActorGraph::spitActors()
     int actorCount = 0;
     int movieCount = 0;
 
-    for (auto itr = unique_actors_list.begin(); itr != unique_actors_list.end(); ++itr) 
+    for (auto itr = unique_actors_list.begin(); itr != unique_actors_list.end(); ++itr)
     {
         auto actor = itr->second;
         cout << actor->get_actor_name() << " distance: " << actor->dist << endl;
@@ -54,17 +56,17 @@ ActorGraph::ActorGraph(void) {}
 void ActorGraph::addToMovieMap(Edge *movie)
 {
     std::string key = movie->movie + std::to_string(movie->year);
-    std::pair<std::string, Edge*> newValue(key, movie);
+    std::pair<std::string, Edge *> newValue(key, movie);
     unique_movies_list.insert(newValue);
 }
 
-void ActorGraph::addToActorMap(Vertex* actor)
+void ActorGraph::addToActorMap(Vertex *actor)
 {
-    std::pair<std::string, Vertex*> newValue(actor->actor_name, actor);
+    std::pair<std::string, Vertex *> newValue(actor->actor_name, actor);
     unique_actors_list.insert(newValue);
 }
 
-bool ActorGraph::loadFromFile(const char *in_filename, bool use_weighted_edges, const char *pairsName, const char *outfileName)
+bool ActorGraph::loadFromFile(const char *in_filename, bool use_weighted_edges)
 {
     // Initialize the file stream
     ifstream infile(in_filename);
@@ -169,7 +171,7 @@ Vertex *ActorGraph::checkIfActorIsUnique(std::string actor_name)
 {
     std::string key = actor_name;
     auto value = unique_actors_list.find(key);
-    
+
     if (value != unique_actors_list.end())
     {
         return value->second;
@@ -182,7 +184,7 @@ Edge *ActorGraph::checkIfMovieIsUnique(std::string movie_title, int movie_year)
 {
     std::string key = movie_title + std::to_string(movie_year);
     auto value = unique_movies_list.find(key);
-    
+
     if (value != unique_movies_list.end())
     {
         return value->second;
@@ -195,7 +197,7 @@ Vertex *ActorGraph::getActor(std::string actor_name)
 {
     std::string key = actor_name;
     auto value = unique_actors_list.find(key);
-    
+
     if (value != unique_actors_list.end())
     {
         return value->second;
@@ -245,7 +247,8 @@ void setActorLinks(Vertex *actor1, Vertex *actor2, Edge *closestMovie)
 void ActorGraph::shortestPathSetup(std::string actorName, std::string actorName2)
 {
     std::cout << "attempting to set up graph" << endl;
-    std::priority_queue<Vertex *, vector<Vertex*>, EdgeCompare> queue;
+    std::priority_queue<Vertex *, vector<Vertex *>, EdgeCompare> queue;
+    std::set<std::reference_wrapper<Vertex *>> uniqueList;
     Vertex *currentActorNode;
 
     Vertex *actor1 = getActor(actorName);
@@ -291,15 +294,22 @@ void ActorGraph::shortestPathSetup(std::string actorName, std::string actorName2
                         // Check if we found the endpoint.
                         // If we did, there is no need to add any more nodes in this path
                         if (n == actor2)
+                        {
+                            // std::priority_queue<Vertex *, vector<Vertex *>, EdgeCompare> empty;
+                            // std::swap(queue, empty);
                             break;
+                        }
 
-                        queue.push(n);
+                        // if (uniqueList.find(n) == uniqueList.end())
+                        // {
+                            queue.push(n);
+                            // uniqueList.insert(n);
+                        // }
                     }
                 }
             }
         }
 
-        std::cout << "Queue has " << queue.size() << " items remaining" << endl;
     }
 
     std::cout << "done wit setup" << endl;
@@ -346,12 +356,12 @@ std::string ActorGraph::getPathFromEnd(std::string endName)
             std::string mapKey = otherNode->actor_name + node->actor_name;
             movieLink = node->movieLinks.at(mapKey);
         }
-        catch(const std::exception& e)
+        catch (const std::exception &e)
         {
             std::string mapKey = node->actor_name + otherNode->actor_name;
             movieLink = node->movieLinks.at(mapKey);
         }
-        
+
         if (i < numberOfNodes - 1)
         {
             path += "--[" + movieLink->movie + "#@" + std::to_string(movieLink->year) + "]";
