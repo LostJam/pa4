@@ -31,9 +31,9 @@ void ActorGraph::spitActors()
     int actorCount = 0;
     int movieCount = 0;
 
-    for (int i = 0; i < unique_actors_list.size(); i++)
+    for (auto itr = unique_actors_list.begin(); itr != unique_actors_list.end(); ++itr) 
     {
-        auto actor = unique_actors_list.at(i);
+        auto actor = itr->second;
         cout << actor->get_actor_name() << " distance: " << actor->dist << endl;
 
         for (Edge *movie : actor->movie_list)
@@ -51,6 +51,19 @@ void ActorGraph::spitActors()
 
 ActorGraph::ActorGraph(void) {}
 
+void ActorGraph::addToMovieMap(Edge *movie)
+{
+    std::string key = movie->movie + std::to_string(movie->year);
+    std::pair<std::string, Edge*> newValue(key, movie);
+    unique_movies_list.insert(newValue);
+}
+
+void ActorGraph::addToActorMap(Vertex* actor)
+{
+    std::pair<std::string, Vertex*> newValue(actor->actor_name, actor);
+    unique_actors_list.insert(newValue);
+}
+
 bool ActorGraph::loadFromFile(const char *in_filename, bool use_weighted_edges, const char *pairsName, const char *outfileName)
 {
     // Initialize the file stream
@@ -58,9 +71,6 @@ bool ActorGraph::loadFromFile(const char *in_filename, bool use_weighted_edges, 
 
     bool have_header = false;
     //first element in the vector so there is something to start with
-    string start = "start";
-    Vertex *vertex = new Vertex(start);
-    unique_actors_list.push_back(vertex);
 
     int linesRead = 0;
     // keep reading lines until the end of file is reached
@@ -118,7 +128,7 @@ bool ActorGraph::loadFromFile(const char *in_filename, bool use_weighted_edges, 
             if (movie == nullptr)
             {
                 movie = new Edge(movie_title, movie_year);
-                unique_movies_list.push_back(movie);
+                addToMovieMap(movie);
             }
 
             //then add it
@@ -126,7 +136,7 @@ bool ActorGraph::loadFromFile(const char *in_filename, bool use_weighted_edges, 
             actor->insertEdge(movie);
             movie->insertActor(actor);
 
-            unique_actors_list.push_back(actor);
+            addToActorMap(actor);
         }
         else
         {
@@ -134,7 +144,7 @@ bool ActorGraph::loadFromFile(const char *in_filename, bool use_weighted_edges, 
             if (movie == nullptr)
             {
                 movie = new Edge(movie_title, movie_year);
-                unique_movies_list.push_back(movie);
+                addToMovieMap(movie);
             }
             movie->insertActor(actor);
             actor->insertEdge(movie);
@@ -142,9 +152,6 @@ bool ActorGraph::loadFromFile(const char *in_filename, bool use_weighted_edges, 
 
         linesRead++;
     } //endwhile!
-
-    //remove dummy vertex
-    unique_actors_list.erase(unique_actors_list.begin());
 
     if (!infile.eof())
     {
@@ -160,13 +167,12 @@ bool ActorGraph::loadFromFile(const char *in_filename, bool use_weighted_edges, 
 
 Vertex *ActorGraph::checkIfActorIsUnique(std::string actor_name)
 {
-    for (auto itr = unique_actors_list.cbegin(); itr != unique_actors_list.end(); ++itr)
+    std::string key = actor_name;
+    auto value = unique_actors_list.find(key);
+    
+    if (value != unique_actors_list.end())
     {
-        //if the name is already in the vector set the bool to false
-        if (((*itr)->get_actor_name()) == (actor_name))
-        {
-            return (*itr);
-        }
+        return value->second;
     }
 
     return nullptr;
@@ -174,14 +180,12 @@ Vertex *ActorGraph::checkIfActorIsUnique(std::string actor_name)
 
 Edge *ActorGraph::checkIfMovieIsUnique(std::string movie_title, int movie_year)
 {
-    for (auto itr = unique_movies_list.cbegin(); itr != unique_movies_list.end(); ++itr)
+    std::string key = movie_title + std::to_string(movie_year);
+    auto value = unique_movies_list.find(key);
+    
+    if (value != unique_movies_list.end())
     {
-        //if the name is already in the vector set the bool to false
-        auto movie = (*itr);
-        if (movie->get_movie_name() == movie_title && movie->get_movie_year() == movie_year)
-        {
-            return (movie);
-        }
+        return value->second;
     }
 
     return nullptr;
@@ -189,12 +193,16 @@ Edge *ActorGraph::checkIfMovieIsUnique(std::string movie_title, int movie_year)
 
 Vertex *ActorGraph::getActor(std::string actor_name)
 {
-    for (int i = 0; i < unique_actors_list.size(); i++)
+    std::string key = actor_name;
+    auto value = unique_actors_list.find(key);
+    
+    if (value != unique_actors_list.end())
     {
-        auto actor = unique_actors_list.at(i);
-        if (actor->actor_name == actor_name)
-            return actor;
+        return value->second;
     }
+
+    std::cout << "ERROR: Couldn't find actor in map!!!" << endl;
+    return nullptr;
 }
 
 Edge *ActorGraph::getSmallestWeight(Vertex *n, Vertex *currentActorNode)

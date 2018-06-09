@@ -21,16 +21,16 @@ using namespace std;
 
 class ActorGraph
 {
-  private:
-    vector<Vertex *> unique_actors_list;
-    vector<Edge *> unique_movies_list;
+private:
+  map<std::string, Vertex *> unique_actors_list;
+  map<std::string, Edge *> unique_movies_list;
 
-  public:
-    ActorGraph(void);
+public:
+  ActorGraph(void);
 
-    // Maybe add some more methods here
+  // Maybe add some more methods here
 
-    /** You can modify this method definition as you wish
+  /** You can modify this method definition as you wish
          *
          * Load the graph from a tab-delimited file of actor->movie relationships.
          *
@@ -39,19 +39,20 @@ class ActorGraph
          *
          * return true if file was loaded sucessfully, false otherwise
          */
-    bool loadFromFile(const char *in_filename, bool use_weighted_edges, const char *pairsName, const char *outfileName);
-    void spitActors();
+  bool loadFromFile(const char *in_filename, bool use_weighted_edges, const char *pairsName, const char *outfileName);
+  void spitActors();
 
-    Vertex* getActor(std::string actor_name);
-    std::string pathBetweenActors(std::string actor1, std::string actor2);
-    Vertex* checkIfActorIsUnique(std::string actor_name);
-    Edge* checkIfMovieIsUnique(std::string movie_title, int movie_year);
-  
-  private:
-    void shortestPathSetup(std::string actorName, std::string actorName2);
-    std::string getPathFromEnd(std::string endName);
-    Edge* getSmallestWeight(Vertex *n, Vertex *currentActorNode);
-           
+  Vertex *getActor(std::string actor_name);
+  std::string pathBetweenActors(std::string actor1, std::string actor2);
+  Vertex *checkIfActorIsUnique(std::string actor_name);
+  Edge *checkIfMovieIsUnique(std::string movie_title, int movie_year);
+
+private:
+  void addToMovieMap(Edge *movie);
+  void addToActorMap(Vertex *actor);
+  void shortestPathSetup(std::string actorName, std::string actorName2);
+  std::string getPathFromEnd(std::string endName);
+  Edge *getSmallestWeight(Vertex *n, Vertex *currentActorNode);
 };
 
 #endif // ACTORGRAPH_H
